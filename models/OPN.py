@@ -20,9 +20,7 @@ import copy
 import sys
 import random
  
-sys.path.insert(0, '.')
-from .common import *
-sys.path.insert(0, '../utils/')
+from models.common import *
 from utils.helpers import *
  
 class Encoder(nn.Module):
