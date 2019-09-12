@@ -78,12 +78,12 @@ def main_worker(gpu, ngpus_per_node, args):
   #################### Load Model
   model = set_device(OPN())
   data = torch.load('weights/OPN.pth', map_location = lambda storage, loc: set_device(storage))
-  model.load_state_dict(get_clear_state_dict(data))
+  model.load_state_dict(get_clear_state_dict(data), strict=False)
   model.eval() 
 
   pp_model = set_device(TCN()) 
   data = torch.load('weights/TCN.pth', map_location = lambda storage, loc: set_device(storage))
-  pp_model.load_state_dict(get_clear_state_dict(data))
+  pp_model.load_state_dict(get_clear_state_dict(data), strict=False)
   pp_model.eval() 
 
 
@@ -96,7 +96,7 @@ def main_worker(gpu, ngpus_per_node, args):
   save_path = 'results/{}_{}'.format(DATA_NAME, MASK_TYPE)
   for vi, V in enumerate(Trainloader):
     frames, masks, GTs, dists, info = V # b,3,t,h,w / b,1,t,h,w
-    frames, masks, dists, GTs = set_device([frames, masks, GTs])
+    frames, masks, dists, GTs = set_device([frames, masks, dists, GTs])
     seq_name = info['name'][0]
     T = frames.size()[2]
     print('[{}] {}/{}: {} for {} frames ...'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
@@ -104,7 +104,7 @@ def main_worker(gpu, ngpus_per_node, args):
 
     with torch.no_grad():
       # valids area
-      valids = 1-masks
+      valids = (1-masks).float()
       ################### Inference
       comps = torch.zeros_like(frames)
       ppeds = torch.zeros_like(frames)
@@ -155,7 +155,7 @@ def main_worker(gpu, ngpus_per_node, args):
     for f in range(T):
       est = (ppeds[0,:,f].permute(1,2,0).detach().cpu().numpy() * 255.).astype(np.uint8)
       true = (frames[0,:,f].permute(1,2,0).detach().cpu().numpy() * 255.).astype(np.uint8) # h,w,3
-      mask = (dists[0,0,f].detach().cpu().numpy() > 0).astype(np.uint8) # h,w,1
+      mask = np.expand_dims((dists[0,0,f].detach().cpu().numpy() > 0).astype(np.uint8), axis=2) # h,w,1
       comp_writer.write(cv2.cvtColor(true*(1-mask)+est*mask, cv2.COLOR_BGR2RGB))
       pred_writer.write(cv2.cvtColor(est, cv2.COLOR_BGR2RGB))
       mask_writer.write(cv2.cvtColor(true*(1-mask)+255*mask, cv2.COLOR_BGR2RGB))

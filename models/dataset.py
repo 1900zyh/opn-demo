@@ -96,7 +96,7 @@ class dataset(data.Dataset):
 
       raw_mask = self._get_masks(index, video, i)
       raw_mask = cv2.resize(raw_mask, dsize=(W, H), interpolation=cv2.INTER_NEAREST)
-      N_dists[i,:,:,0] = cv2.distanceTransform(raw_mask, cv2.DIST_L2, maskSize=5)
+      N_dists[i,:,:,0] = cv2.distanceTransform(raw_mask, cv2.DIST_L2, maskSize=5).astype(np.float32)
       N_masks[i,:,:,0] = raw_mask.astype(np.float32)
 
     Fs = torch.from_numpy(np.transpose(N_frames, (3, 0, 1, 2)).copy()).float()

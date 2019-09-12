@@ -183,7 +183,7 @@ class OPN(nn.Module):
         qkey, qval = self.Encoder(frame, valid, hole)
         qpel = peel3
         # read.
-        read = self.MaskedRead(qkey, qval, qpel, mkey, mval, 1-mhol)
+        read = self.MaskedRead(qkey, qval, qpel, mkey, mval, ~mhol)
         # decode
         pred = self.Decoder(read)
         comp = (1-peel)*frame + peel*pred # fill peel area
