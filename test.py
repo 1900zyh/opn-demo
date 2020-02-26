@@ -154,7 +154,7 @@ def main_worker(gpu, ngpus_per_node, args):
       cv2.VideoWriter_fourcc(*"MJPG"), default_fps, (w, h))
     for f in range(T):
       est = (ppeds[0,:,f].permute(1,2,0).detach().cpu().numpy() * 255.).astype(np.uint8)
-      true = (frames[0,:,f].permute(1,2,0).detach().cpu().numpy() * 255.).astype(np.uint8) # h,w,3
+      true = (GTs[0,:,f].permute(1,2,0).detach().cpu().numpy() * 255.).astype(np.uint8) # h,w,3
       mask = np.expand_dims((dists[0,0,f].detach().cpu().numpy() > 0).astype(np.uint8), axis=2) # h,w,1
       comp_writer.write(cv2.cvtColor(true*(1-mask)+est*mask, cv2.COLOR_BGR2RGB))
       pred_writer.write(cv2.cvtColor(est, cv2.COLOR_BGR2RGB))
