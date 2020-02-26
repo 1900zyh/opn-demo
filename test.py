@@ -136,12 +136,13 @@ def main_worker(gpu, ngpus_per_node, args):
             
         comps[:,:,f] = comp
 
-      # post-processing...
-      ppeds[:,:,0] = comps[:,:,0]
-      hidden = None
-      for f in range(T):
-        pped, hidden = pp_model(ppeds[:,:,f-1], masks[:,:,f-1], comps[:,:,f], masks[:,:,f], hidden)
-        ppeds[:,:,f] = pped
+      ppeds = comps
+      # # post-processing...
+      # ppeds[:,:,0] = comps[:,:,0]
+      # hidden = None
+      # for f in range(T):
+      #   pped, hidden = pp_model(ppeds[:,:,f-1], masks[:,:,f-1], comps[:,:,f], masks[:,:,f], hidden)
+      #   ppeds[:,:,f] = pped
 
     os.makedirs(os.path.join(save_path, seq_name), exist_ok=True)
     comp_writer = cv2.VideoWriter(os.path.join(save_path, seq_name, 'comp.avi'),
