@@ -115,6 +115,14 @@ class dataset(data.Dataset):
       m = np.zeros(self.size, np.uint8)
       m[h//2-h//8:h//2+h//8, w//2-w//8:w//2+w//8] = 1
       return m
+    elif self.mask_type == 'random_obj':
+      m_name = self.mask_dict[video][i]
+      m = ZipReader.imread('../datazip/{}/Annotations/{}.zip'.format(self.data_name, video), m_name).convert('L')
+      m = np.array(m)
+      m = np.array(m>0).astype(np.uint8)
+      m = cv2.resize(m, (w,h), cv2.INTER_NEAREST)
+      m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_CROSS,(3,3)), iterations=4)
+      return m
     elif self.mask_type == 'object':
       m_name = self.mask_dict[video][i]
       m = ZipReader.imread('../datazip/{}/Annotations/{}.zip'.format(self.data_name, video), m_name).convert('L')
